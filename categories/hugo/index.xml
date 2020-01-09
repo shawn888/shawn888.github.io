@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>码农先生</title>
-    <link>https://shawn888.github.io/</link>
-    <description>Recent content on 码农先生</description>
+    <title>Hugo on 码农先生</title>
+    <link>https://shawn888.github.io/categories/hugo/</link>
+    <description>Recent content in Hugo on 码农先生</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <lastBuildDate>Thu, 09 Jan 2020 21:00:12 +0800</lastBuildDate>
     
-	<atom:link href="https://shawn888.github.io/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://shawn888.github.io/categories/hugo/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>

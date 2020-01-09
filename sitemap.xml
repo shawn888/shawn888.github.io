@@ -3,35 +3,52 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://shawn888.github.io/2020/01/first/</loc>
-    <lastmod>2020-01-09T10:39:37+08:00</lastmod>
+    <loc>https://shawn888.github.io/categories/</loc>
+    <lastmod>2020-01-09T21:00:12+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://shawn888.github.io/tags/git-pages/</loc>
+    <lastmod>2020-01-09T21:00:12+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://shawn888.github.io/categories/hugo/</loc>
+    <lastmod>2020-01-09T21:00:12+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://shawn888.github.io/tags/hugo/</loc>
+    <lastmod>2020-01-09T21:00:12+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://shawn888.github.io/post/</loc>
-    <lastmod>2020-01-09T10:39:37+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://shawn888.github.io/</loc>
-    <lastmod>2020-01-09T10:39:37+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://shawn888.github.io/about/</loc>
-    <lastmod>2020-01-09T10:38:37+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://shawn888.github.io/archives/</loc>
-  </url>
-  
-  <url>
-    <loc>https://shawn888.github.io/categories/</loc>
+    <lastmod>2020-01-09T21:00:12+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://shawn888.github.io/tags/</loc>
+    <lastmod>2020-01-09T21:00:12+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://shawn888.github.io/2020/01/%E4%BD%BF%E7%94%A8hugo%E5%92%8Cgitpages%E6%9E%84%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</loc>
+    <lastmod>2020-01-09T21:00:12+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://shawn888.github.io/</loc>
+    <lastmod>2020-01-09T21:00:12+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://shawn888.github.io/categories/%E9%9A%8F%E7%AC%94/</loc>
+    <lastmod>2020-01-09T21:00:12+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://shawn888.github.io/archives/</loc>
   </url>
   
 </urlset>

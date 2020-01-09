@@ -6,18 +6,18 @@
     <description>Recent content in Posts on 码农先生</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Thu, 09 Jan 2020 10:39:37 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 09 Jan 2020 21:00:12 +0800</lastBuildDate>
     
 	<atom:link href="https://shawn888.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>First</title>
-      <link>https://shawn888.github.io/2020/01/first/</link>
-      <pubDate>Thu, 09 Jan 2020 10:39:37 +0800</pubDate>
+      <title>使用Hugo和GitPages构建个人博客</title>
+      <link>https://shawn888.github.io/2020/01/%E4%BD%BF%E7%94%A8hugo%E5%92%8Cgitpages%E6%9E%84%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</link>
+      <pubDate>Thu, 09 Jan 2020 21:00:12 +0800</pubDate>
       
-      <guid>https://shawn888.github.io/2020/01/first/</guid>
-      <description>hugo test  aaa bbb ccc ddd  </description>
+      <guid>https://shawn888.github.io/2020/01/%E4%BD%BF%E7%94%A8hugo%E5%92%8Cgitpages%E6%9E%84%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</guid>
+      <description>&lt;p&gt;空闲时间，使用Hugo和Git Pages搭建一个博客，这里整理了以下整个过程，希望你看到了有所帮助。&lt;/p&gt;</description>
     </item>
     
   </channel>
