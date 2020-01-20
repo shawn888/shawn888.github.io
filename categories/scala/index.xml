@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>码农先生</title>
-    <link>https://shawn888.github.io/</link>
-    <description>Recent content on 码农先生</description>
+    <title>Scala on 码农先生</title>
+    <link>https://shawn888.github.io/categories/scala/</link>
+    <description>Recent content in Scala on 码农先生</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <lastBuildDate>Mon, 20 Jan 2020 12:19:28 +0800</lastBuildDate>
     
-	<atom:link href="https://shawn888.github.io/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://shawn888.github.io/categories/scala/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -18,15 +18,6 @@
       
       <guid>https://shawn888.github.io/2020/01/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/</guid>
       <description>&lt;p&gt;近期项目需要使用scala构建一套日志实时收集分析系统，其中需要把日志记录到Postgresql中，为了解决数据库链接复用，这里介绍下在scala语言中基于alibaba的diruid.pool库构建数据库连接池&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>使用Hugo和GitPages构建个人博客</title>
-      <link>https://shawn888.github.io/2020/01/%E4%BD%BF%E7%94%A8hugo%E5%92%8Cgitpages%E6%9E%84%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</link>
-      <pubDate>Thu, 09 Jan 2020 21:00:12 +0800</pubDate>
-      
-      <guid>https://shawn888.github.io/2020/01/%E4%BD%BF%E7%94%A8hugo%E5%92%8Cgitpages%E6%9E%84%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</guid>
-      <description>&lt;p&gt;空闲时间，使用Hugo和Git Pages搭建一个博客，这里整理了以下整个过程，希望你看到了有所帮助，本站主题地址:&lt;a href=&#34;https://github.com/kakawait/hugo-tranquilpeak-theme&#34;&gt;https://github.com/kakawait/hugo-tranquilpeak-theme&lt;/a&gt; 喜欢的拿去吧~&lt;/p&gt;</description>
     </item>
     
   </channel>

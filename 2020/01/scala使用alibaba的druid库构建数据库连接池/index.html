@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.62.2 with theme Tranquilpeak 0.4.7-BETA">
+<meta name="author" content="Luo Xiao">
+<meta name="keywords" content="druid数据库连接池, PHP, Golang, Linux, 大数据, 黑灰产, 反作弊, Python, 随笔">
+<meta name="description" content="近期项目需要使用scala构建一套日志实时收集分析系统，其中需要把日志记录到Postgresql中，为了解决数据库链接复用，这里介绍下在scala语言中基于alibaba的diruid.pool库构建数据库连接池">
+
+
+<meta property="og:description" content="近期项目需要使用scala构建一套日志实时收集分析系统，其中需要把日志记录到Postgresql中，为了解决数据库链接复用，这里介绍下在scala语言中基于alibaba的diruid.pool库构建数据库连接池">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Scala使用alibaba的druid库构建数据库连接池">
+<meta name="twitter:title" content="Scala使用alibaba的druid库构建数据库连接池">
+<meta property="og:url" content="https://shawn888.github.io/2020/01/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/">
+<meta property="twitter:url" content="https://shawn888.github.io/2020/01/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/">
+<meta property="og:site_name" content="码农先生">
+<meta property="og:description" content="近期项目需要使用scala构建一套日志实时收集分析系统，其中需要把日志记录到Postgresql中，为了解决数据库链接复用，这里介绍下在scala语言中基于alibaba的diruid.pool库构建数据库连接池">
+<meta name="twitter:description" content="近期项目需要使用scala构建一套日志实时收集分析系统，其中需要把日志记录到Postgresql中，为了解决数据库链接复用，这里介绍下在scala语言中基于alibaba的diruid.pool库构建数据库连接池">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2020-01-20T12:19:28">
+  
+  
+    <meta property="article:modified_time" content="2020-01-20T12:19:28">
+  
+  
+  
+    
+      <meta property="article:section" content="Scala">
+    
+  
+  
+    
+      <meta property="article:tag" content="Scala数据库连接池">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+  <meta name="twitter:site" content="@luoshawn888">
+
+
+  <meta name="twitter:creator" content="@luoshawn888">
+
+
+
+
+
+
+  <meta property="og:image" content="https://s2.ax1x.com/2020/01/20/1PvStH.md.png">
+  <meta property="twitter:image" content="https://s2.ax1x.com/2020/01/20/1PvStH.md.png">
+
+
+
+
+
+  <meta property="og:image" content="https://s2.ax1x.com/2020/01/09/lW3gpD.jpg">
+  <meta property="twitter:image" content="https://s2.ax1x.com/2020/01/09/lW3gpD.jpg">
+
+
+    <title>Scala使用alibaba的druid库构建数据库连接池</title>
+
+    <link rel="icon" href="https://shawn888.github.io/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://shawn888.github.io/2020/01/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="https://shawn888.github.io/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="5">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://shawn888.github.io/">码农先生</a>
+  </div>
+  
+    
+      <a class="header-right-icon open-algolia-search"
+         href="https://shawn888.github.io/#search">
+    
+    
+      <i class="fa fa-lg fa-search"></i>
+    
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="5">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://shawn888.github.io/#about">
+          <img class="sidebar-profile-picture" src="https://s2.ax1x.com/2020/01/09/lW3gpD.jpg" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">Luo Xiao</h4>
+        
+          <h5 class="sidebar-profile-bio">年轻时的释怀和淡泊是没有希望的。</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/shawn888" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/index.xml">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-rss"></i>
+      
+      <span class="sidebar-button-desc">RSS</span>
+    </a>
+  </li>
+
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="5"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-center">
+  
+    <h1 class="post-title" itemprop="headline">
+      Scala使用alibaba的druid库构建数据库连接池
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2020-01-20T12:19:28&#43;08:00">
+        
+  
+  
+  
+  
+    2020-01-20
+  
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="https://shawn888.github.io/categories/scala">Scala</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <p>近期项目需要使用scala构建一套日志实时收集分析系统，其中需要把日志记录到Postgresql中，为了解决数据库链接复用，这里介绍下在scala语言中基于alibaba的diruid.pool库构建数据库连接池</p>
+<h1 id="先贴代码">先贴代码</h1>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">package</span> store
+
+<span style="color:#66d9ef">import</span> java.sql.Connection
+<span style="color:#66d9ef">import</span> com.alibaba.druid.pool.DruidDataSource
+<span style="color:#66d9ef">import</span> config.Configs._
+
+<span style="color:#75715e">/*</span><span style="color:#75715e">*</span><span style="color:#75715e">
+</span><span style="color:#75715e"> </span><span style="color:#75715e">*</span><span style="color:#75715e"> PgSql 连接工厂
+</span><span style="color:#75715e"> </span><span style="color:#75715e">*/</span>
+<span style="color:#66d9ef">object</span> <span style="color:#a6e22e">PgSqlConnection</span> <span style="color:#f92672">{</span>
+  <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">var</span> druidDataSource <span style="color:#66d9ef">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">DruidDataSource</span>
+
+  <span style="color:#66d9ef">def</span> getConnection<span style="color:#f92672">(</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">=</span> <span style="color:#f92672">{</span>
+    druidDataSource<span style="color:#f92672">.</span>setDriverClassName<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;org.postgresql.Driver&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#75715e">// 例：&#34;jdbc:mysql://192.168.0.1:3306/mydbname?serverTimezone=UTC&#34;
+</span><span style="color:#75715e"></span>    druidDataSource<span style="color:#f92672">.</span>setUrl<span style="color:#f92672">(</span><span style="color:#a6e22e">PgDbUrl</span><span style="color:#f92672">)</span>
+    druidDataSource<span style="color:#f92672">.</span>setUsername<span style="color:#f92672">(</span><span style="color:#a6e22e">PgDbUser</span><span style="color:#f92672">)</span>
+    druidDataSource<span style="color:#f92672">.</span>setPassword<span style="color:#f92672">(</span><span style="color:#a6e22e">PgDbPwd</span><span style="color:#f92672">)</span>
+    <span style="color:#75715e">// 设置连接池的一些参数
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// 1.数据库连接池初始化的连接个数
+</span><span style="color:#75715e"></span>    druidDataSource<span style="color:#f92672">.</span>setInitialSize<span style="color:#f92672">(</span><span style="color:#ae81ff">50</span><span style="color:#f92672">)</span>
+    <span style="color:#75715e">// 2.指定最大的连接数，同一时刻可以同时向数据库申请的连接数
+</span><span style="color:#75715e"></span>    druidDataSource<span style="color:#f92672">.</span>setMaxActive<span style="color:#f92672">(</span><span style="color:#ae81ff">200</span><span style="color:#f92672">)</span>
+    <span style="color:#75715e">// 3.指定小连接数：在数据库连接池空闲状态下，连接池中保存的最少的空闲连接数
+</span><span style="color:#75715e"></span>    druidDataSource<span style="color:#f92672">.</span>setMinIdle<span style="color:#f92672">(</span><span style="color:#ae81ff">30</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">var</span> con<span style="color:#66d9ef">:</span><span style="color:#66d9ef">Connection</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>
+    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+      con <span style="color:#66d9ef">=</span> druidDataSource<span style="color:#f92672">.</span>getConnection
+      <span style="color:#a6e22e">System</span><span style="color:#f92672">.</span>out<span style="color:#f92672">.</span>println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;创建pgsql连接池：&#34;</span> <span style="color:#f92672">+</span> con<span style="color:#f92672">)</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">case</span> e<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Exception</span> <span style="color:#f92672">=&gt;</span>
+        <span style="color:#a6e22e">System</span><span style="color:#f92672">.</span>out<span style="color:#f92672">.</span>println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;-----------pgsql get connection has exception , msg = &#34;</span> <span style="color:#f92672">+</span> e<span style="color:#f92672">.</span>getMessage <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;, trace=&#34;</span><span style="color:#f92672">+</span>e<span style="color:#f92672">.</span>getStackTrace<span style="color:#f92672">)</span>
+    <span style="color:#f92672">}</span>
+    con
+
+
+  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div>
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://shawn888.github.io/tags/scala%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/">Scala数据库连接池</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://shawn888.github.io/2020/01/%E4%BD%BF%E7%94%A8hugo%E5%92%8Cgitpages%E6%9E%84%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/" data-tooltip="使用Hugo和GitPages构建个人博客">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://shawn888.github.io/2020/01/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://shawn888.github.io/2020/01/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://shawn888.github.io/2020/01/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2020 <a href="https://github.com/shawn888">shawn888</a>. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="5">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://shawn888.github.io/2020/01/%E4%BD%BF%E7%94%A8hugo%E5%92%8Cgitpages%E6%9E%84%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/" data-tooltip="使用Hugo和GitPages构建个人博客">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://shawn888.github.io/2020/01/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://shawn888.github.io/2020/01/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://shawn888.github.io/2020/01/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="5">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fshawn888.github.io%2F2020%2F01%2Fscala%25E4%25BD%25BF%25E7%2594%25A8alibaba%25E7%259A%2584druid%25E5%25BA%2593%25E6%259E%2584%25E5%25BB%25BA%25E6%2595%25B0%25E6%258D%25AE%25E5%25BA%2593%25E8%25BF%259E%25E6%258E%25A5%25E6%25B1%25A0%2F">
+          <i class="fa fa-facebook-official"></i><span>分享到 Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https%3A%2F%2Fshawn888.github.io%2F2020%2F01%2Fscala%25E4%25BD%25BF%25E7%2594%25A8alibaba%25E7%259A%2584druid%25E5%25BA%2593%25E6%259E%2584%25E5%25BB%25BA%25E6%2595%25B0%25E6%258D%25AE%25E5%25BA%2593%25E8%25BF%259E%25E6%258E%25A5%25E6%25B1%25A0%2F">
+          <i class="fa fa-twitter"></i><span>分享到 Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https%3A%2F%2Fshawn888.github.io%2F2020%2F01%2Fscala%25E4%25BD%25BF%25E7%2594%25A8alibaba%25E7%259A%2584druid%25E5%25BA%2593%25E6%259E%2584%25E5%25BB%25BA%25E6%2595%25B0%25E6%258D%25AE%25E5%25BA%2593%25E8%25BF%259E%25E6%258E%25A5%25E6%25B1%25A0%2F">
+          <i class="fa fa-google-plus"></i><span>分享到 Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://s2.ax1x.com/2020/01/09/lW3gpD.jpg" alt="作者的图片" />
+    
+    <h4 id="about-card-name">Luo Xiao</h4>
+    
+      <div id="about-card-bio">年轻时的释怀和淡泊是没有希望的。</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        花椒直播
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        北京·朝阳·酒仙桥
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('https://shawn888.github.io/images/cover.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="https://shawn888.github.io/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = 'https:\/\/shawn888.github.io\/2020\/01\/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0\/';
+          
+            this.page.identifier = '\/2020\/01\/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'hugo-tranquilpeak-theme';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+

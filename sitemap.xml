@@ -4,7 +4,37 @@
   
   <url>
     <loc>https://shawn888.github.io/categories/</loc>
-    <lastmod>2020-01-09T21:00:12+08:00</lastmod>
+    <lastmod>2020-01-20T12:19:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://shawn888.github.io/post/</loc>
+    <lastmod>2020-01-20T12:19:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://shawn888.github.io/categories/scala/</loc>
+    <lastmod>2020-01-20T12:19:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://shawn888.github.io/2020/01/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/</loc>
+    <lastmod>2020-01-20T12:19:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://shawn888.github.io/tags/scala%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/</loc>
+    <lastmod>2020-01-20T12:19:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://shawn888.github.io/tags/</loc>
+    <lastmod>2020-01-20T12:19:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://shawn888.github.io/</loc>
+    <lastmod>2020-01-20T12:19:28+08:00</lastmod>
   </url>
   
   <url>
@@ -13,22 +43,7 @@
   </url>
   
   <url>
-    <loc>https://shawn888.github.io/post/</loc>
-    <lastmod>2020-01-09T21:00:12+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://shawn888.github.io/tags/</loc>
-    <lastmod>2020-01-09T21:00:12+08:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://shawn888.github.io/2020/01/%E4%BD%BF%E7%94%A8hugo%E5%92%8Cgitpages%E6%9E%84%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</loc>
-    <lastmod>2020-01-09T21:00:12+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://shawn888.github.io/</loc>
     <lastmod>2020-01-09T21:00:12+08:00</lastmod>
   </url>
   
