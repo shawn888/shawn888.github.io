@@ -291,6 +291,44 @@
 
   <span style="color:#f92672">}</span>
 <span style="color:#f92672">}</span>
+</code></pre></div><h1 id="其他jdbc类似如mysql连接池下">其他JDBC类似，如Mysql连接池下</h1>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">
+<span style="color:#66d9ef">package</span> store
+
+<span style="color:#66d9ef">import</span> java.sql.Connection
+<span style="color:#66d9ef">import</span> com.alibaba.druid.pool.DruidDataSource
+<span style="color:#66d9ef">import</span> config.Configs.<span style="color:#f92672">{</span><span style="color:#a6e22e">DbUrl</span><span style="color:#f92672">,</span><span style="color:#a6e22e">DbUser</span><span style="color:#f92672">,</span><span style="color:#a6e22e">DbPwd</span><span style="color:#f92672">}</span>
+
+<span style="color:#75715e">/*</span><span style="color:#75715e">*</span><span style="color:#75715e">
+</span><span style="color:#75715e"> </span><span style="color:#75715e">*</span><span style="color:#75715e"> MySql 连接工厂
+</span><span style="color:#75715e"> </span><span style="color:#75715e">*/</span>
+<span style="color:#66d9ef">object</span> <span style="color:#a6e22e">MySqlConnection</span> <span style="color:#f92672">{</span>
+  <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">var</span> druidDataSource <span style="color:#66d9ef">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">DruidDataSource</span>
+
+  <span style="color:#66d9ef">def</span> getConnection<span style="color:#f92672">(</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">=</span> <span style="color:#f92672">{</span>
+    druidDataSource<span style="color:#f92672">.</span>setDriverClassName<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;com.mysql.jdbc.Driver&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#75715e">// 例：&#34;jdbc:mysql://192.168.0.1:3306/mydbname?serverTimezone=UTC&#34;
+</span><span style="color:#75715e"></span>    druidDataSource<span style="color:#f92672">.</span>setUrl<span style="color:#f92672">(</span><span style="color:#a6e22e">DbUrl</span><span style="color:#f92672">)</span>
+    druidDataSource<span style="color:#f92672">.</span>setUsername<span style="color:#f92672">(</span><span style="color:#a6e22e">DbUser</span><span style="color:#f92672">)</span>
+    druidDataSource<span style="color:#f92672">.</span>setPassword<span style="color:#f92672">(</span><span style="color:#a6e22e">DbPwd</span><span style="color:#f92672">)</span>
+    <span style="color:#75715e">// 设置连接池的一些参数
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// 1.数据库连接池初始化的连接个数
+</span><span style="color:#75715e"></span>    druidDataSource<span style="color:#f92672">.</span>setInitialSize<span style="color:#f92672">(</span><span style="color:#ae81ff">50</span><span style="color:#f92672">)</span>
+    <span style="color:#75715e">// 2.指定最大的连接数，同一时刻可以同时向数据库申请的连接数
+</span><span style="color:#75715e"></span>    druidDataSource<span style="color:#f92672">.</span>setMaxActive<span style="color:#f92672">(</span><span style="color:#ae81ff">200</span><span style="color:#f92672">)</span>
+    <span style="color:#75715e">// 3.指定小连接数：在数据库连接池空闲状态下，连接池中保存的最少的空闲连接数
+</span><span style="color:#75715e"></span>    druidDataSource<span style="color:#f92672">.</span>setMinIdle<span style="color:#f92672">(</span><span style="color:#ae81ff">30</span><span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">var</span> con<span style="color:#66d9ef">:</span><span style="color:#66d9ef">Connection</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>
+    <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+      con <span style="color:#66d9ef">=</span> druidDataSource<span style="color:#f92672">.</span>getConnection
+      <span style="color:#a6e22e">System</span><span style="color:#f92672">.</span>out<span style="color:#f92672">.</span>println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;创建mysql连接池：&#34;</span> <span style="color:#f92672">+</span> con<span style="color:#f92672">)</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">case</span> e<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Exception</span> <span style="color:#f92672">=&gt;</span>
+        <span style="color:#a6e22e">System</span><span style="color:#f92672">.</span>out<span style="color:#f92672">.</span>println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;-----------mysql get connection has exception , msg = &#34;</span> <span style="color:#f92672">+</span> e<span style="color:#f92672">.</span>getMessage<span style="color:#f92672">)</span>
+    <span style="color:#f92672">}</span>
+    con
+  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
 </code></pre></div>
               
             </div>
