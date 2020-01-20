@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.62.2 with theme Tranquilpeak 0.4.7-BETA">
+<meta name="author" content="Luo Xiao">
+<meta name="keywords" content="随笔, PHP, Golang, Linux, 大数据, 黑灰产, 反作弊, Python, 随笔">
+<meta name="description" content="空闲时间，使用Hugo和Git Pages搭建一个博客，这里整理了以下整个过程，希望你看到了有所帮助，本站主题地址:https://github.com/kakawait/hugo-tranquilpeak-theme 喜欢的拿去吧~">
+
+
+<meta property="og:description" content="空闲时间，使用Hugo和Git Pages搭建一个博客，这里整理了以下整个过程，希望你看到了有所帮助，本站主题地址:https://github.com/kakawait/hugo-tranquilpeak-theme 喜欢的拿去吧~">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hugo和GitPages搭建博客">
+<meta name="twitter:title" content="Hugo和GitPages搭建博客">
+<meta property="og:url" content="https://shawn888.github.io/2020/01/hugo%E5%92%8Cgitpages%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">
+<meta property="twitter:url" content="https://shawn888.github.io/2020/01/hugo%E5%92%8Cgitpages%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">
+<meta property="og:site_name" content="码农先生">
+<meta property="og:description" content="空闲时间，使用Hugo和Git Pages搭建一个博客，这里整理了以下整个过程，希望你看到了有所帮助，本站主题地址:https://github.com/kakawait/hugo-tranquilpeak-theme 喜欢的拿去吧~">
+<meta name="twitter:description" content="空闲时间，使用Hugo和Git Pages搭建一个博客，这里整理了以下整个过程，希望你看到了有所帮助，本站主题地址:https://github.com/kakawait/hugo-tranquilpeak-theme 喜欢的拿去吧~">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2020-01-09T21:00:12">
+  
+  
+    <meta property="article:modified_time" content="2020-01-09T21:00:12">
+  
+  
+  
+    
+      <meta property="article:section" content="随笔">
+    
+  
+  
+    
+      <meta property="article:tag" content="Hugo">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+  <meta name="twitter:site" content="@luoshawn888">
+
+
+  <meta name="twitter:creator" content="@luoshawn888">
+
+
+
+
+
+
+  <meta property="og:image" content="https://s2.ax1x.com/2020/01/10/lh47wQ.md.png">
+  <meta property="twitter:image" content="https://s2.ax1x.com/2020/01/10/lh47wQ.md.png">
+
+
+
+
+
+  <meta property="og:image" content="https://s2.ax1x.com/2020/01/09/lW3gpD.jpg">
+  <meta property="twitter:image" content="https://s2.ax1x.com/2020/01/09/lW3gpD.jpg">
+
+
+    <title>Hugo和GitPages搭建博客</title>
+
+    <link rel="icon" href="https://shawn888.github.io/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://shawn888.github.io/2020/01/hugo%E5%92%8Cgitpages%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="https://shawn888.github.io/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="5">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://shawn888.github.io/">码农先生</a>
+  </div>
+  
+    
+      <a class="header-right-icon open-algolia-search"
+         href="https://shawn888.github.io/#search">
+    
+    
+      <i class="fa fa-lg fa-search"></i>
+    
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="5">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://shawn888.github.io/#about">
+          <img class="sidebar-profile-picture" src="https://s2.ax1x.com/2020/01/09/lW3gpD.jpg" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">Luo Xiao</h4>
+        
+          <h5 class="sidebar-profile-bio">年轻时的释怀和淡泊是没有希望的。</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/shawn888" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/index.xml">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-rss"></i>
+      
+      <span class="sidebar-button-desc">RSS</span>
+    </a>
+  </li>
+
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="5"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-center">
+  
+    <h1 class="post-title" itemprop="headline">
+      Hugo和GitPages搭建博客
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2020-01-09T21:00:12&#43;08:00">
+        
+  
+  
+  
+  
+    2020-01-09
+  
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="https://shawn888.github.io/categories/%e9%9a%8f%e7%ac%94">随笔</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <p>空闲时间，使用Hugo和Git Pages搭建一个博客，这里整理了以下整个过程，希望你看到了有所帮助，本站主题地址:<a href="https://github.com/kakawait/hugo-tranquilpeak-theme">https://github.com/kakawait/hugo-tranquilpeak-theme</a> 喜欢的拿去吧~</p>
+<h3 id="hugo优势">Hugo优势</h3>
+<ul>
+<li>Hugo 是使用 Go 编写的快速而现代的静态站点生成器，效率很高</li>
+<li>结合Git Pages最大的卖点是完全免费，不需要任何其他服务器或者费用</li>
+</ul>
+<h3 id="安装hugo">安装Hugo</h3>
+<ul>
+<li>Mac安装</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">brew install hugo 
+</code></pre></div><ul>
+<li>其他安装，下载二进制包安装</li>
+</ul>
+<pre><code>https://github.com/gohugoio/hugo/releases
+</code></pre><h3 id="hugo检查安装是否成功">Hugo检查安装是否成功</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">hugo version
+</code></pre></div><h3 id="创建站点">创建站点</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e">#创建站点目录</span>
+mkdir myblog
+
+<span style="color:#75715e">#使用hugo创建站点，生成所需站点文件</span>
+hugo new site /path/to/myblog
+
+</code></pre></div><h3 id="创建后站点目录结构">创建后站点目录结构</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">.
+├── archetypes <span style="color:#75715e"># 存放生成博客的模版</span>
+├── config <span style="color:#75715e"># 存放 hugo 配置文件 支持 JSON YAML TOML 三种格式配置文件</span>
+├── content <span style="color:#75715e"># 存放 markdown 文件</span>
+├── data <span style="color:#75715e"># 存放 Hugo 处理的数据</span>
+├── layouts <span style="color:#75715e"># 存放布局文件</span>
+├── static <span style="color:#75715e"># 存放静态文件 图片 CSS JS文件</span>
+└── themes <span style="color:#75715e"># 存放主题</span>
+</code></pre></div><h3 id="添加主题">添加主题</h3>
+<ul>
+<li>自己选个主题， <a href="https://themes.gohugo.io/">主题库传送门</a></li>
+<li>下载主题</li>
+</ul>
+<pre><code>cd /path/to/myblog/themes
+git clone https://github.com/kakawait/hugo-tranquilpeak-theme.git
+</code></pre><h3 id="启动hugo">启动Hugo</h3>
+<ul>
+<li>直接本机启动（未配置主题，启动使用默认主题）</li>
+</ul>
+<pre><code>hugo server
+
+</code></pre><ul>
+<li>指定主题本机启动</li>
+</ul>
+<pre><code>hugo server --theme=hugo-tranquilpeak-theme
+</code></pre><h3 id="配置主题">配置主题</h3>
+<ul>
+<li>修改config.tom文件配置,如下为我的配置文件</li>
+<li><a href="https://s0gohugo0io.icopy.site/getting-started/configuration/">官方参数说明</a></li>
+<li><a href="https://dp2px.com/2019/09/04/hugo-config/">三方参数说明传送门</a></li>
+</ul>
+<pre><code class="language-conf" data-lang="conf">#这个很重要，解析到gitpage必填的一项，请填写你的gitpage地址：https://这里填写你github的用户名.github.io/， 如：https://shawn888.github.io/，另外这里要注意，这里填写https的地址，后面的支持https配置才可以正常显示页面
+baseURL = &quot;https://shawn888.github.io/&quot;
+languageCode = &quot;zh-cn&quot;
+defaultContentLanguage = &quot;zh-cn&quot;
+title = &quot;网站标题&quot;
+# 使用的皮肤，也就是刚才clone下来的皮肤名称（在/path/to/myblog/themes/hugo-tranquilpeak-theme）
+theme = &quot;hugo-tranquilpeak-theme&quot;
+disqusShortname = &quot;hugo-tranquilpeak-theme&quot;
+paginate = 11
+canonifyurls = true
+enableEmoji = true # 支持 Emoji
+enableRobotsTXT = true # 支持 robots.txt
+[permalinks]
+  post = &quot;/:year/:month/:slug/&quot;
+[taxonomies]
+  tag = &quot;tags&quot;
+  category = &quot;categories&quot;
+  archive = &quot;archives&quot;
+[author]
+  name = &quot;你的名字&quot;
+  bio = &quot;个性签名&quot;
+  job = &quot;工作的公司&quot;
+  location = &quot;你的地址&quot;
+  picture = &quot;头像地址 使用网络地址&quot;
+  twitter = &quot;推特账号&quot;
+[[menu.main]]
+  weight = 1
+  identifier = &quot;home&quot;
+  name = &quot;Home&quot;
+  pre = &quot;&lt;i class=\&quot;sidebar-button-icon fa fa-lg fa-home\&quot;&gt;&lt;/i&gt;&quot;
+  url = &quot;/&quot;
+[[menu.main]]
+  weight = 2
+  identifier = &quot;categories&quot;
+  name = &quot;Categories&quot;
+  pre = &quot;&lt;i class=\&quot;sidebar-button-icon fa fa-lg fa-bookmark\&quot;&gt;&lt;/i&gt;&quot;
+  url = &quot;/categories&quot;
+[[menu.main]]
+  weight = 3
+  identifier = &quot;tags&quot;
+  name = &quot;Tags&quot;
+  pre = &quot;&lt;i class=\&quot;sidebar-button-icon fa fa-lg fa-tags\&quot;&gt;&lt;/i&gt;&quot;
+  url = &quot;/tags&quot;
+[[menu.main]]
+  weight = 4
+  identifier = &quot;archives&quot;
+  name = &quot;Archives&quot;
+  pre = &quot;&lt;i class=\&quot;sidebar-button-icon fa fa-lg fa-archive\&quot;&gt;&lt;/i&gt;&quot;
+  url = &quot;/archives&quot;
+[[menu.main]]
+  weight = 5
+  identifier = &quot;about&quot;
+  name = &quot;About&quot;
+  pre = &quot;&lt;i class=\&quot;sidebar-button-icon fa fa-lg fa-question\&quot;&gt;&lt;/i&gt;&quot;
+  url = &quot;/#about&quot;
+[[menu.links]]
+  weight = 1
+  identifier = &quot;github&quot;
+  name = &quot;GitHub&quot;
+  pre = &quot;&lt;i class=\&quot;sidebar-button-icon fa fa-lg fa-github\&quot;&gt;&lt;/i&gt;&quot;
+  url = &quot;https://github.com/shawn888&quot;
+[[menu.misc]]
+  weight = 1
+  identifier = &quot;rss&quot;
+  name = &quot;RSS&quot;
+  pre = &quot;&lt;i class=\&quot;sidebar-button-icon fa fa-lg fa-rss\&quot;&gt;&lt;/i&gt;&quot;
+  url = &quot;/index.xml&quot;
+[params]
+  dateFormat = &quot;2006-01-02&quot;
+  keywords = [&quot;PHP&quot;, &quot;Golang&quot;, &quot;Linux&quot;, &quot;大数据&quot;, &quot;黑灰产&quot;, &quot;反作弊&quot;, &quot;Python&quot;, &quot;随笔&quot;]
+  syntaxHighlighter = &quot;highlight.js&quot;
+  clearReading = false
+  hierarchicalCategories = true
+  description = &quot;&quot;
+  sidebarBehavior = 2
+  coverImage = &quot;images/cover.jpg&quot;
+  imageGallery = true
+  thumbnailImage = true
+  thumbnailImagePosition = &quot;left&quot;
+  autoThumbnailImage = true
+  [[params.sharingOptions]]
+    name = &quot;Facebook&quot;
+    icon = &quot;fa-facebook-official&quot;
+    url = &quot;https://www.facebook.com/sharer/sharer.php?u=%s&quot;
+  [[params.sharingOptions]]
+    name = &quot;Twitter&quot;
+    icon = &quot;fa-twitter&quot;
+    url = &quot;https://twitter.com/intent/tweet?text=%s&quot;
+  [[params.sharingOptions]]
+    name = &quot;Google+&quot;
+    icon = &quot;fa-google-plus&quot;
+    url = &quot;https://plus.google.com/share?url=%s&quot;
+  [params.header.rightLink]
+    class = &quot;open-algolia-search&quot;
+    icon = &quot;search&quot;
+    url = &quot;/#search&quot;
+  [params.sidebar.profile]
+    url = &quot;/#about&quot;
+  [params.footer]
+    copyright = &quot;&lt;a href=\&quot;https://github.com/shawn888\&quot;&gt;shawn888&lt;/a&gt;&quot;
+
+</code></pre><h3 id="编写文章">编写文章</h3>
+<ul>
+<li>创建文章</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e">#该命令会使用模板创建文件，首先查找用户的模板文件，没有就会查找主题的模板文件</span>
+hugo new post/my-first-blog.md
+<span style="color:#75715e"># 使用markdown编辑文章,生成的文章在/path/to/myblog/content/post/my-first-blog.md下</span>
+vim post/my-first-blog.md
+
+</code></pre></div><ul>
+<li>编写文章</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e">#这里要注意创建的文章中,如下</span>
+---
+列表页缩略显示简述内容编辑区
+&lt;!--more--&gt;
+在more标识之后就是文章内容编写区域
+
+</code></pre></div><ul>
+<li>修改创建文章的模板</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># 用户模板文件路径</span>
+cd /path/to/myblog/archetypes/default.md
+
+<span style="color:#75715e">#皮肤主题默认模板文件（如果没有，可以自己复制用户模板文件到这边来）</span>
+cd /path/to/myblog/themes/hugo-tranquilpeak-theme/archetypes/default.md
+</code></pre></div><ul>
+<li>我的文章模板配置如下</li>
+</ul>
+<pre><code class="language-conf" data-lang="conf">---
+#文章标题
+title: &quot;{{ replace .Name &quot;-&quot; &quot; &quot; | title }}&quot;
+#添加日期
+date: {{ .Date }}
+#文章描述
+description: &quot;&quot;
+#是否草稿
+draft: true
+#文章标签
+tags: []
+#文章分类
+categories: []
+#文件关键词
+keywords: []
+#打开文章详情页，是否保持清爽阅读模式（也就是屏蔽左侧菜单栏）
+clearReading: true
+#文章列表页缩略图地址
+thumbnailImage: &quot;&quot;
+#文章列表页缩略图展示位置
+thumbnailImagePosition: left
+#自动提取文章第一个图作为缩略图
+autoThumbnailImage: yes
+#图像太大截取保留中间图像显示
+metaAlignment: center
+# 封面
+# coverImage: https://s2.ax1x.com/2020/01/10/lhyP2Q.md.png
+# coverCaption: &quot;Hugo&quot;
+# coverMeta: out
+# coverSize: full
+# 轮播图
+# gallery:
+#     - image-3.jpg &quot;New York&quot;
+#     - image-4.png &quot;Paris&quot;
+#     - http://i.imgur.com/o9r19kD.jpg &quot;Dubai&quot;
+#     - https://example.com/orignal.jpg https://example.com/thumbnail.jpg &quot;Sidney&quot;
+#评论开启
+comments: true
+#显示标签
+showTags: true
+#显示上一篇、下一篇
+showPagination: true
+#显示社交空间
+showSocial: true
+#显示文章日期
+showDate: true
+#页面简述，一般卸载&lt;!--more--&gt;中
+# summary: &quot;good,Hugo~&quot;
+---
+
+</code></pre><h3 id="打包发布到git">打包发布到Git</h3>
+<ul>
+<li>打包命令</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># -t 后必须跟皮肤名，不然没办法生成对应的样式</span>
+hugo -t hugo-tranquilpeak-theme
+</code></pre></div><ul>
+<li>打包后，会再目录下生成一个public的目录</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cd path/to/myblog/public
+
+tree -L <span style="color:#ae81ff">1</span>
+
+.
+├── <span style="color:#ae81ff">2020</span>
+├── 404.html
+├── CNAME
+├── about
+├── archives
+├── categories
+├── css
+├── favicon.png
+├── images
+├── index.html
+├── index.xml
+├── js
+├── page
+├── post
+├── robots.txt
+├── sitemap.xml
+└── tags
+
+</code></pre></div><h3 id="使用git-pages建立外网站点">使用Git Pages建立外网站点</h3>
+<ul>
+<li>
+<p>创建github仓库,这里必须注意仓库的名称必须为,github用户名.github.io,如下图
+<img src="https://s2.ax1x.com/2020/01/20/1PB7Dg.png" alt="1PB7Dg.png"></p>
+</li>
+<li>
+<p>进入/path/to/myblog/</p>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+cd path/to/myblog/public
+
+<span style="color:#75715e"># 将代码提交到刚建立的github中</span>
+git init
+git remote add origin git@github.com:shawn888/shawn888.github.io.git
+git add -A
+git commit -m <span style="color:#e6db74">&#39;blog init&#39;</span>
+git push -u origin master
+</code></pre></div><ul>
+<li>提交后可以使用https://github用户名.github.io访问你的博客了</li>
+</ul>
+<h3 id="自动部署发布github脚本">自动部署发布GitHub脚本</h3>
+<ul>
+<li>deploy.sh 脚本如下</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e">#!/bin/bash
+</span><span style="color:#75715e"></span><span style="color:#75715e"># 部署到 github pages 脚本</span>
+<span style="color:#75715e"># 错误时终止脚本</span>
+set -e
+
+<span style="color:#75715e"># 删除打包文件夹</span>
+<span style="color:#75715e">#rm -rf public</span>
+
+<span style="color:#75715e"># 打包。even 是主题</span>
+<span style="color:#75715e">#hugo --theme=hugo-tranquilpeak-theme  --baseUrl=&#34;https://shawn888.github.io/&#34;</span> 
+hugo --theme<span style="color:#f92672">=</span>hugo-tranquilpeak-theme <span style="color:#75715e"># if using a theme, replace with `hugo -t &lt;YOURTHEME&gt;`</span>
+
+<span style="color:#75715e"># 进入打包文件夹</span>
+cd public
+
+<span style="color:#75715e"># Add changes to git.</span>
+
+git init
+git add -A
+
+<span style="color:#75715e"># Commit changes.</span>
+msg<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;blog update `date`&#34;</span>
+<span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> $# -eq <span style="color:#ae81ff">1</span> <span style="color:#f92672">]</span>
+  <span style="color:#66d9ef">then</span> msg<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74">&#34;</span>
+<span style="color:#66d9ef">fi</span>
+git commit -m <span style="color:#e6db74">&#34;</span>$msg<span style="color:#e6db74">&#34;</span>
+
+<span style="color:#75715e"># 推送到githu</span>  
+<span style="color:#75715e"># nusr.github.io 只能使用 master分支</span>
+git push -f git@github.com:shawn888/shawn888.github.io.git master
+
+<span style="color:#75715e"># 回到原文件夹</span>
+cd ..
+</code></pre></div><h3 id="dns解析自定义域名配置前提是你要有一个域名哈">DNS解析自定义域名配置（前提是你要有一个域名哈~）</h3>
+<ul>
+<li>我的域名是阿里云购买的，解析配置如下
+<img src="https://s2.ax1x.com/2020/01/20/1PfE0P.png" alt="1PfE0P.png"></li>
+</ul>
+<h3 id="gitpage支持https解析配置">gitpage支持https解析配置</h3>
+<ul>
+<li>首先配置github代码仓库的，打开代码仓库选择settings,填写你的域名.必须使用https方式
+<img src="https://s2.ax1x.com/2020/01/20/1PW1IO.png" alt="1PW1IO.png"></li>
+</ul>
+<h3 id="代码参考">代码参考</h3>
+<ul>
+<li><a href="https://github.com/shawn888/shawn888.github.io">本站博客代码</a></li>
+</ul>
+<h3 id="参考材料">参考材料</h3>
+<p><a href="https://www.gohugo.org/">官方文档</a></p>
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://shawn888.github.io/tags/hugo/">Hugo</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://shawn888.github.io/2020/01/scala%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/" data-tooltip="Scala构建数据库连接池">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://shawn888.github.io/2020/01/hugo%E5%92%8Cgitpages%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://shawn888.github.io/2020/01/hugo%E5%92%8Cgitpages%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://shawn888.github.io/2020/01/hugo%E5%92%8Cgitpages%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2020 <a href="https://github.com/shawn888">shawn888</a>. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="5">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://shawn888.github.io/2020/01/scala%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/" data-tooltip="Scala构建数据库连接池">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://shawn888.github.io/2020/01/hugo%E5%92%8Cgitpages%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://shawn888.github.io/2020/01/hugo%E5%92%8Cgitpages%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://shawn888.github.io/2020/01/hugo%E5%92%8Cgitpages%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="5">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fshawn888.github.io%2F2020%2F01%2Fhugo%25E5%2592%258Cgitpages%25E6%2590%25AD%25E5%25BB%25BA%25E5%258D%259A%25E5%25AE%25A2%2F">
+          <i class="fa fa-facebook-official"></i><span>分享到 Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https%3A%2F%2Fshawn888.github.io%2F2020%2F01%2Fhugo%25E5%2592%258Cgitpages%25E6%2590%25AD%25E5%25BB%25BA%25E5%258D%259A%25E5%25AE%25A2%2F">
+          <i class="fa fa-twitter"></i><span>分享到 Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https%3A%2F%2Fshawn888.github.io%2F2020%2F01%2Fhugo%25E5%2592%258Cgitpages%25E6%2590%25AD%25E5%25BB%25BA%25E5%258D%259A%25E5%25AE%25A2%2F">
+          <i class="fa fa-google-plus"></i><span>分享到 Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://s2.ax1x.com/2020/01/09/lW3gpD.jpg" alt="作者的图片" />
+    
+    <h4 id="about-card-name">Luo Xiao</h4>
+    
+      <div id="about-card-bio">年轻时的释怀和淡泊是没有希望的。</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        花椒直播
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        北京·朝阳·酒仙桥
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('https://shawn888.github.io/images/cover.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="https://shawn888.github.io/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = 'https:\/\/shawn888.github.io\/2020\/01\/hugo%E5%92%8Cgitpages%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2\/';
+          
+            this.page.identifier = '\/2020\/01\/hugo%E5%92%8Cgitpages%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'uknow-vip';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+

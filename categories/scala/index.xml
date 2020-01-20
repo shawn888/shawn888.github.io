@@ -12,11 +12,11 @@
     
     
     <item>
-      <title>Scala使用alibaba的druid库构建数据库连接池</title>
-      <link>https://shawn888.github.io/2020/01/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/</link>
+      <title>Scala构建数据库连接池</title>
+      <link>https://shawn888.github.io/2020/01/scala%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/</link>
       <pubDate>Mon, 20 Jan 2020 12:19:28 +0800</pubDate>
       
-      <guid>https://shawn888.github.io/2020/01/scala%E4%BD%BF%E7%94%A8alibaba%E7%9A%84druid%E5%BA%93%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/</guid>
+      <guid>https://shawn888.github.io/2020/01/scala%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/</guid>
       <description>&lt;p&gt;近期项目需要使用scala构建一套日志实时收集分析系统，其中需要把日志记录到Postgresql中，为了解决数据库链接复用，这里介绍下在scala语言中基于alibaba的diruid.pool库构建数据库连接池&lt;/p&gt;</description>
     </item>
     
