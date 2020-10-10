@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>GO on 码农先生</title>
+    <link>https://shawn888.github.io/categories/go/</link>
+    <description>Recent content in GO on 码农先生</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 10 Oct 2020 15:15:59 +0800</lastBuildDate>
+    
+	<atom:link href="https://shawn888.github.io/categories/go/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Go开发指针切换的用处</title>
+      <link>https://shawn888.github.io/2020/10/go%E5%BC%80%E5%8F%91%E6%8C%87%E9%92%88%E5%88%87%E6%8D%A2%E7%9A%84%E7%94%A8%E5%A4%84/</link>
+      <pubDate>Sat, 10 Oct 2020 15:15:59 +0800</pubDate>
+      
+      <guid>https://shawn888.github.io/2020/10/go%E5%BC%80%E5%8F%91%E6%8C%87%E9%92%88%E5%88%87%E6%8D%A2%E7%9A%84%E7%94%A8%E5%A4%84/</guid>
+      <description>&lt;p&gt;近期在搞一个敏感词服务，由于敏感词词库量比较大，敏感词服务载重载过程中需要对词做分词和词频解析，时间比较久，导致服务重载敏感词期间，敏感词请求检测会出现bug，需要修复必须要保证提供服务的敏感词加载要是完整的情况下才可以正式替换加载。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.62.2 with theme Tranquilpeak 0.4.7-BETA">
+<meta name="author" content="Luo Xiao">
+<meta name="keywords" content="Go指针切换, PHP, Golang, Linux, 大数据, 黑灰产, 反作弊, Python, 随笔">
+<meta name="description" content="近期在搞一个敏感词服务，由于敏感词词库量比较大，敏感词服务载重载过程中需要对词做分词和词频解析，时间比较久，导致服务重载敏感词期间，敏感词请求检测会出现bug，需要修复必须要保证提供服务的敏感词加载要是完整的情况下才可以正式替换加载。">
+
+
+<meta property="og:description" content="近期在搞一个敏感词服务，由于敏感词词库量比较大，敏感词服务载重载过程中需要对词做分词和词频解析，时间比较久，导致服务重载敏感词期间，敏感词请求检测会出现bug，需要修复必须要保证提供服务的敏感词加载要是完整的情况下才可以正式替换加载。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go开发指针切换的用处">
+<meta name="twitter:title" content="Go开发指针切换的用处">
+<meta property="og:url" content="https://shawn888.github.io/2020/10/go%E5%BC%80%E5%8F%91%E6%8C%87%E9%92%88%E5%88%87%E6%8D%A2%E7%9A%84%E7%94%A8%E5%A4%84/">
+<meta property="twitter:url" content="https://shawn888.github.io/2020/10/go%E5%BC%80%E5%8F%91%E6%8C%87%E9%92%88%E5%88%87%E6%8D%A2%E7%9A%84%E7%94%A8%E5%A4%84/">
+<meta property="og:site_name" content="码农先生">
+<meta property="og:description" content="近期在搞一个敏感词服务，由于敏感词词库量比较大，敏感词服务载重载过程中需要对词做分词和词频解析，时间比较久，导致服务重载敏感词期间，敏感词请求检测会出现bug，需要修复必须要保证提供服务的敏感词加载要是完整的情况下才可以正式替换加载。">
+<meta name="twitter:description" content="近期在搞一个敏感词服务，由于敏感词词库量比较大，敏感词服务载重载过程中需要对词做分词和词频解析，时间比较久，导致服务重载敏感词期间，敏感词请求检测会出现bug，需要修复必须要保证提供服务的敏感词加载要是完整的情况下才可以正式替换加载。">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2020-10-10T15:15:59">
+  
+  
+    <meta property="article:modified_time" content="2020-10-10T15:15:59">
+  
+  
+  
+    
+      <meta property="article:section" content="GO">
+    
+  
+  
+    
+      <meta property="article:tag" content="Go">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+  <meta name="twitter:site" content="@luoshawn888">
+
+
+  <meta name="twitter:creator" content="@luoshawn888">
+
+
+
+
+
+
+  <meta property="og:image" content="https://s1.ax1x.com/2020/10/10/0yMExH.png">
+  <meta property="twitter:image" content="https://s1.ax1x.com/2020/10/10/0yMExH.png">
+
+
+
+
+
+  <meta property="og:image" content="https://s2.ax1x.com/2020/01/09/lW3gpD.jpg">
+  <meta property="twitter:image" content="https://s2.ax1x.com/2020/01/09/lW3gpD.jpg">
+
+
+    <title>Go开发指针切换的用处</title>
+
+    <link rel="icon" href="https://shawn888.github.io/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://shawn888.github.io/2020/10/go%E5%BC%80%E5%8F%91%E6%8C%87%E9%92%88%E5%88%87%E6%8D%A2%E7%9A%84%E7%94%A8%E5%A4%84/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="https://shawn888.github.io/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="5">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://shawn888.github.io/">码农先生</a>
+  </div>
+  
+    
+      <a class="header-right-icon open-algolia-search"
+         href="https://shawn888.github.io/#search">
+    
+    
+      <i class="fa fa-lg fa-search"></i>
+    
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="5">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://shawn888.github.io/#about">
+          <img class="sidebar-profile-picture" src="https://s2.ax1x.com/2020/01/09/lW3gpD.jpg" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">Luo Xiao</h4>
+        
+          <h5 class="sidebar-profile-bio">年轻时的释怀和淡泊是没有希望的。</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/shawn888" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://shawn888.github.io/index.xml">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-rss"></i>
+      
+      <span class="sidebar-button-desc">RSS</span>
+    </a>
+  </li>
+
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="5"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-center">
+  
+    <h1 class="post-title" itemprop="headline">
+      Go开发指针切换的用处
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2020-10-10T15:15:59&#43;08:00">
+        
+  
+  
+  
+  
+    2020-10-10
+  
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="https://shawn888.github.io/categories/go">GO</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <p>近期在搞一个敏感词服务，由于敏感词词库量比较大，敏感词服务载重载过程中需要对词做分词和词频解析，时间比较久，导致服务重载敏感词期间，敏感词请求检测会出现bug，需要修复必须要保证提供服务的敏感词加载要是完整的情况下才可以正式替换加载。</p>
+<h1 id="原代码">原代码</h1>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> (
+	<span style="color:#e6db74">&#34;encoding/json&#34;</span>
+	<span style="color:#e6db74">&#34;flag&#34;</span>
+	<span style="color:#e6db74">&#34;fmt&#34;</span>
+	<span style="color:#e6db74">&#34;git.xxx.com/pepper/sego&#34;</span>
+	<span style="color:#e6db74">&#34;github.com/fvbock/endless&#34;</span>
+	<span style="color:#e6db74">&#34;github.com/robfig/cron&#34;</span>
+	<span style="color:#e6db74">&#34;io&#34;</span>
+	<span style="color:#e6db74">&#34;log&#34;</span>
+	<span style="color:#e6db74">&#34;net/http&#34;</span>
+	<span style="color:#e6db74">&#34;os&#34;</span>
+	<span style="color:#e6db74">&#34;runtime&#34;</span>
+	<span style="color:#e6db74">&#34;strings&#34;</span>
+	<span style="color:#e6db74">&#34;time&#34;</span>
+)
+
+<span style="color:#66d9ef">var</span> (
+	<span style="color:#a6e22e">host</span>           = <span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">String</span>(<span style="color:#e6db74">&#34;host&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>, <span style="color:#e6db74">&#34;HTTP服务器主机名&#34;</span>)
+	<span style="color:#a6e22e">port</span>           = <span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">Int</span>(<span style="color:#e6db74">&#34;port&#34;</span>, <span style="color:#ae81ff">80</span>, <span style="color:#e6db74">&#34;HTTP服务器端口&#34;</span>)
+	<span style="color:#a6e22e">dict</span>           = <span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">String</span>(<span style="color:#e6db74">&#34;dict&#34;</span>, <span style="color:#e6db74">&#34;/home/q/system/xxx/xxx_sego/test/dictionary.txt&#34;</span>, <span style="color:#e6db74">&#34;词典文件&#34;</span>)
+	<span style="color:#a6e22e">reloadInterval</span> = <span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">String</span>(<span style="color:#e6db74">&#34;reloadInterval&#34;</span>, <span style="color:#e6db74">&#34;1m&#34;</span>, <span style="color:#e6db74">&#34;自动重启周期间隔&#34;</span>)
+	<span style="color:#75715e">//staticFolder = flag.String(&#34;static_folder&#34;, &#34;/home/q/system/xxx/go/src/github.com/pakrchen/sego/server/static&#34;, &#34;静态页面存放的目录&#34;)
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">segmenter</span> = <span style="color:#a6e22e">sego</span>.<span style="color:#a6e22e">Segmenter</span>{}
+
+	<span style="color:#a6e22e">logFile</span> = <span style="color:#e6db74">&#34;/data/nginx/logs/api.xxx.corp.qihoo.net/app/segoserver.log&#34;</span>
+)
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">init</span>() {
+	<span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">Parse</span>()
+
+	<span style="color:#75715e">//设置cron
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">cron</span>.<span style="color:#a6e22e">New</span>()
+	<span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">AddFunc</span>(<span style="color:#e6db74">&#34;@every &#34;</span><span style="color:#f92672">+</span><span style="color:#f92672">*</span><span style="color:#a6e22e">reloadInterval</span>, <span style="color:#a6e22e">reloadDict</span>)
+	<span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Start</span>()
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">reloadDict</span>() {
+	<span style="color:#a6e22e">logToFile</span>(<span style="color:#a6e22e">logFile</span>, <span style="color:#e6db74">&#34;reload &#34;</span><span style="color:#f92672">+</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%d&#34;</span>, <span style="color:#f92672">*</span><span style="color:#a6e22e">port</span>) <span style="color:#f92672">+</span><span style="color:#e6db74">&#34; start interval : &#34;</span><span style="color:#f92672">+</span><span style="color:#f92672">*</span><span style="color:#a6e22e">reloadInterval</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#34; &#34;</span><span style="color:#f92672">+</span><span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>().<span style="color:#a6e22e">Format</span>(<span style="color:#e6db74">&#34;2006/01/02 15:04:05&#34;</span>))
+	<span style="color:#a6e22e">segmenter</span>.<span style="color:#a6e22e">LoadDictionary</span>(<span style="color:#f92672">*</span><span style="color:#a6e22e">dict</span>)
+	<span style="color:#a6e22e">logToFile</span>(<span style="color:#a6e22e">logFile</span>, <span style="color:#e6db74">&#34;reload &#34;</span><span style="color:#f92672">+</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%d&#34;</span>, <span style="color:#f92672">*</span><span style="color:#a6e22e">port</span>) <span style="color:#f92672">+</span><span style="color:#e6db74">&#34; end :&#34;</span><span style="color:#f92672">+</span><span style="color:#f92672">*</span><span style="color:#a6e22e">reloadInterval</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#34; &#34;</span><span style="color:#f92672">+</span><span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>().<span style="color:#a6e22e">Format</span>(<span style="color:#e6db74">&#34;2006/01/02 15:04:05&#34;</span>))
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">logToFile</span>(<span style="color:#a6e22e">filename</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">v</span> <span style="color:#f92672">...</span><span style="color:#66d9ef">interface</span>{}) {
+	<span style="color:#a6e22e">f</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">OpenFile</span>(<span style="color:#a6e22e">filename</span>, <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">O_RDWR</span>|<span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">O_CREATE</span>|<span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">O_APPEND</span>, <span style="color:#ae81ff">0666</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+	}
+	<span style="color:#75715e">// defer f.Close()
+</span><span style="color:#75715e"></span>
+	<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">SetOutput</span>(<span style="color:#a6e22e">f</span>)
+	<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">v</span>)
+	<span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">f</span>.<span style="color:#a6e22e">Close</span>()
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">HitFilter</span>(<span style="color:#a6e22e">text</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">words</span> []<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>) (<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>][]<span style="color:#66d9ef">string</span>, <span style="color:#66d9ef">bool</span>) {
+	<span style="color:#a6e22e">hitMap</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>][]<span style="color:#66d9ef">string</span>)
+	<span style="color:#a6e22e">length</span> <span style="color:#f92672">:=</span> len(<span style="color:#a6e22e">words</span>)
+	<span style="color:#a6e22e">hit</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">false</span>
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>; <span style="color:#a6e22e">i</span> <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">--</span> {
+		<span style="color:#a6e22e">tmpMap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">Split</span>(<span style="color:#a6e22e">words</span>[<span style="color:#a6e22e">i</span>][<span style="color:#e6db74">&#34;Pos&#34;</span>], <span style="color:#e6db74">&#34;|&#34;</span>)
+		<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">j</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">j</span> &lt; len(<span style="color:#a6e22e">tmpMap</span>); <span style="color:#a6e22e">j</span><span style="color:#f92672">++</span> {
+			<span style="color:#a6e22e">hitMap</span>[<span style="color:#a6e22e">tmpMap</span>[<span style="color:#a6e22e">j</span>]] = append(<span style="color:#a6e22e">hitMap</span>[<span style="color:#a6e22e">tmpMap</span>[<span style="color:#a6e22e">j</span>]], <span style="color:#a6e22e">words</span>[<span style="color:#a6e22e">i</span>][<span style="color:#e6db74">&#34;Text&#34;</span>])
+		}
+	}
+
+	<span style="color:#66d9ef">if</span> len(<span style="color:#a6e22e">hitMap</span>) &gt; <span style="color:#ae81ff">0</span> {
+		<span style="color:#a6e22e">hit</span> = <span style="color:#66d9ef">true</span>
+	}
+
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">hitMap</span>, <span style="color:#a6e22e">hit</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">JsonRpcServer</span>(<span style="color:#a6e22e">w</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">ResponseWriter</span>, <span style="color:#a6e22e">req</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Request</span>) {
+	<span style="color:#75715e">// 得到要分词的文本
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">text</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">URL</span>.<span style="color:#a6e22e">Query</span>().<span style="color:#a6e22e">Get</span>(<span style="color:#e6db74">&#34;text&#34;</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">text</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;&#34;</span> {
+		<span style="color:#a6e22e">text</span> = <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">PostFormValue</span>(<span style="color:#e6db74">&#34;text&#34;</span>)
+	}
+	<span style="color:#75715e">// 支持searchMode
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">mode</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">URL</span>.<span style="color:#a6e22e">Query</span>().<span style="color:#a6e22e">Get</span>(<span style="color:#e6db74">&#34;mode&#34;</span>)
+	<span style="color:#a6e22e">searchMode</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">false</span>
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">mode</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;search&#34;</span> {
+		<span style="color:#a6e22e">searchMode</span> = <span style="color:#66d9ef">true</span>
+	}
+
+	<span style="color:#75715e">// 分词
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">segments</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">segmenter</span>.<span style="color:#a6e22e">Segment</span>([]byte(<span style="color:#a6e22e">text</span>))
+	<span style="color:#a6e22e">words</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">sego</span>.<span style="color:#a6e22e">SegmentsToSliceWithPos</span>(<span style="color:#a6e22e">segments</span>, <span style="color:#a6e22e">searchMode</span>)
+	<span style="color:#a6e22e">hitMap</span>, <span style="color:#a6e22e">hit</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">HitFilter</span>(<span style="color:#a6e22e">text</span>, <span style="color:#a6e22e">words</span>)
+	<span style="color:#a6e22e">response</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">json</span>.<span style="color:#a6e22e">Marshal</span>(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">interface</span>{}{<span style="color:#e6db74">&#34;Segment&#34;</span>: <span style="color:#a6e22e">words</span>, <span style="color:#e6db74">&#34;Hit&#34;</span>: <span style="color:#a6e22e">hit</span>, <span style="color:#e6db74">&#34;HitMap&#34;</span>: <span style="color:#a6e22e">hitMap</span>})
+	<span style="color:#a6e22e">logToFile</span>(<span style="color:#a6e22e">logFile</span>, <span style="color:#e6db74">&#34;ip: &#34;</span>, <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">RemoteAddr</span>, <span style="color:#e6db74">&#34;\t&#34;</span>, <span style="color:#a6e22e">text</span>, <span style="color:#e6db74">&#34;\t&#34;</span>, string(<span style="color:#a6e22e">response</span>[:]))
+
+	<span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">Header</span>().<span style="color:#a6e22e">Set</span>(<span style="color:#e6db74">&#34;Content-Type&#34;</span>, <span style="color:#e6db74">&#34;application/json&#34;</span>)
+	<span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">io</span>.<span style="color:#a6e22e">WriteString</span>(<span style="color:#a6e22e">w</span>, string(<span style="color:#a6e22e">response</span>))
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+	<span style="color:#75715e">// 将线程数设置为CPU数
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">GOMAXPROCS</span>(<span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">NumCPU</span>())
+
+	<span style="color:#75715e">// 初始化分词器
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">segmenter</span>.<span style="color:#a6e22e">LoadDictionary</span>(<span style="color:#f92672">*</span><span style="color:#a6e22e">dict</span>)
+
+	<span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">HandleFunc</span>(<span style="color:#e6db74">&#34;/json&#34;</span>, <span style="color:#a6e22e">JsonRpcServer</span>)
+	<span style="color:#75715e">//http.Handle(&#34;/&#34;, http.FileServer(http.Dir(*staticFolder)))
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Print</span>(<span style="color:#e6db74">&#34;服务器启动&#34;</span>)
+	<span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">endless</span>.<span style="color:#a6e22e">ListenAndServe</span>(<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%s:%d&#34;</span>, <span style="color:#f92672">*</span><span style="color:#a6e22e">host</span>, <span style="color:#f92672">*</span><span style="color:#a6e22e">port</span>), <span style="color:#66d9ef">nil</span>)
+}
+
+
+</code></pre></div><h1 id="修正后采用指针切换形式保证加载完成后在载入新的词库">修正后采用指针切换形式保证加载完成后在载入新的词库</h1>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+
+<span style="color:#f92672">import</span> (
+	<span style="color:#e6db74">&#34;encoding/json&#34;</span>
+	<span style="color:#e6db74">&#34;flag&#34;</span>
+	<span style="color:#e6db74">&#34;fmt&#34;</span>
+	<span style="color:#e6db74">&#34;git.xxx.com/pepper/sego&#34;</span>
+	<span style="color:#e6db74">&#34;github.com/fvbock/endless&#34;</span>
+	<span style="color:#e6db74">&#34;github.com/robfig/cron&#34;</span>
+	<span style="color:#e6db74">&#34;io&#34;</span>
+	<span style="color:#e6db74">&#34;log&#34;</span>
+	<span style="color:#e6db74">&#34;net/http&#34;</span>
+	<span style="color:#e6db74">&#34;os&#34;</span>
+	<span style="color:#e6db74">&#34;runtime&#34;</span>
+	<span style="color:#e6db74">&#34;strings&#34;</span>
+	<span style="color:#e6db74">&#34;sync/atomic&#34;</span>
+	<span style="color:#e6db74">&#34;time&#34;</span>
+	<span style="color:#e6db74">&#34;unsafe&#34;</span>
+)
+
+<span style="color:#66d9ef">var</span> (
+	<span style="color:#a6e22e">host</span>           = <span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">String</span>(<span style="color:#e6db74">&#34;host&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>, <span style="color:#e6db74">&#34;HTTP服务器主机名&#34;</span>)
+	<span style="color:#a6e22e">port</span>           = <span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">Int</span>(<span style="color:#e6db74">&#34;port&#34;</span>, <span style="color:#ae81ff">80</span>, <span style="color:#e6db74">&#34;HTTP服务器端口&#34;</span>)
+	<span style="color:#a6e22e">dict</span>           = <span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">String</span>(<span style="color:#e6db74">&#34;dict&#34;</span>, <span style="color:#e6db74">&#34;/home/q/system/xxx/xxx_sego/test/dictionary.txt&#34;</span>, <span style="color:#e6db74">&#34;词典文件&#34;</span>)
+	<span style="color:#a6e22e">reloadInterval</span> = <span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">String</span>(<span style="color:#e6db74">&#34;reloadInterval&#34;</span>, <span style="color:#e6db74">&#34;1m&#34;</span>, <span style="color:#e6db74">&#34;自动重启周期间隔&#34;</span>)
+
+	<span style="color:#a6e22e">logFile</span> = <span style="color:#e6db74">&#34;/data/nginx/logs/api.data.xxx.com/app/segoserver.log&#34;</span>
+)
+
+<span style="color:#75715e">//可切换的指针值
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">segmenter</span> = <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#66d9ef">nil</span>)
+
+<span style="color:#75715e">//获取指针值
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">getSego</span>() <span style="color:#f92672">*</span><span style="color:#a6e22e">sego</span>.<span style="color:#a6e22e">Segmenter</span> {
+	<span style="color:#a6e22e">tmp</span> <span style="color:#f92672">:=</span> (<span style="color:#f92672">*</span><span style="color:#a6e22e">sego</span>.<span style="color:#a6e22e">Segmenter</span>)(<span style="color:#a6e22e">atomic</span>.<span style="color:#a6e22e">LoadPointer</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">segmenter</span>))
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">tmp</span>
+}
+
+<span style="color:#75715e">//保存指针值
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">storeSego</span>(<span style="color:#a6e22e">m</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sego</span>.<span style="color:#a6e22e">Segmenter</span>) {
+	<span style="color:#a6e22e">atomic</span>.<span style="color:#a6e22e">StorePointer</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">segmenter</span>, <span style="color:#a6e22e">unsafe</span>.<span style="color:#a6e22e">Pointer</span>(<span style="color:#a6e22e">m</span>))
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">init</span>() {
+	<span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">Parse</span>()
+
+	<span style="color:#75715e">//设置cron
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">cron</span>.<span style="color:#a6e22e">New</span>()
+	<span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">AddFunc</span>(<span style="color:#e6db74">&#34;@every &#34;</span><span style="color:#f92672">+</span><span style="color:#f92672">*</span><span style="color:#a6e22e">reloadInterval</span>, <span style="color:#a6e22e">reloadDict</span>)
+	<span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Start</span>()
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">reloadDict</span>() {
+	<span style="color:#a6e22e">logToFile</span>(<span style="color:#a6e22e">logFile</span>, <span style="color:#e6db74">&#34;reload &#34;</span><span style="color:#f92672">+</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%d&#34;</span>, <span style="color:#f92672">*</span><span style="color:#a6e22e">port</span>) <span style="color:#f92672">+</span><span style="color:#e6db74">&#34; start interval : &#34;</span><span style="color:#f92672">+</span><span style="color:#f92672">*</span><span style="color:#a6e22e">reloadInterval</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#34; &#34;</span><span style="color:#f92672">+</span><span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>().<span style="color:#a6e22e">Format</span>(<span style="color:#e6db74">&#34;2006/01/02 15:04:05&#34;</span>))
+	<span style="color:#a6e22e">segmenter</span><span style="color:#f92672">:=</span><span style="color:#a6e22e">sego</span>.<span style="color:#a6e22e">Segmenter</span>{}
+    <span style="color:#a6e22e">segmenter</span>.<span style="color:#a6e22e">LoadDictionary</span>(<span style="color:#f92672">*</span><span style="color:#a6e22e">dict</span>)
+    <span style="color:#75715e">//新词库加载完波后更新指针值
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">storeSego</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">segmenter</span>)
+	<span style="color:#a6e22e">logToFile</span>(<span style="color:#a6e22e">logFile</span>, <span style="color:#e6db74">&#34;reload &#34;</span><span style="color:#f92672">+</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%d&#34;</span>, <span style="color:#f92672">*</span><span style="color:#a6e22e">port</span>) <span style="color:#f92672">+</span><span style="color:#e6db74">&#34; end :&#34;</span><span style="color:#f92672">+</span><span style="color:#f92672">*</span><span style="color:#a6e22e">reloadInterval</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#34; &#34;</span><span style="color:#f92672">+</span><span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>().<span style="color:#a6e22e">Format</span>(<span style="color:#e6db74">&#34;2006/01/02 15:04:05&#34;</span>))
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">logToFile</span>(<span style="color:#a6e22e">filename</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">v</span> <span style="color:#f92672">...</span><span style="color:#66d9ef">interface</span>{}) {
+	<span style="color:#a6e22e">f</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">OpenFile</span>(<span style="color:#a6e22e">filename</span>, <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">O_RDWR</span>|<span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">O_CREATE</span>|<span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">O_APPEND</span>, <span style="color:#ae81ff">0666</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+	}
+	<span style="color:#75715e">// defer f.Close()
+</span><span style="color:#75715e"></span>
+	<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">SetOutput</span>(<span style="color:#a6e22e">f</span>)
+	<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">v</span>)
+	<span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">f</span>.<span style="color:#a6e22e">Close</span>()
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">HitFilter</span>(<span style="color:#a6e22e">text</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">words</span> []<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>) (<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>][]<span style="color:#66d9ef">string</span>, <span style="color:#66d9ef">bool</span>) {
+	<span style="color:#a6e22e">hitMap</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>][]<span style="color:#66d9ef">string</span>)
+	<span style="color:#a6e22e">length</span> <span style="color:#f92672">:=</span> len(<span style="color:#a6e22e">words</span>)
+	<span style="color:#a6e22e">hit</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">false</span>
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>; <span style="color:#a6e22e">i</span> <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">--</span> {
+		<span style="color:#a6e22e">tmpMap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">Split</span>(<span style="color:#a6e22e">words</span>[<span style="color:#a6e22e">i</span>][<span style="color:#e6db74">&#34;Pos&#34;</span>], <span style="color:#e6db74">&#34;|&#34;</span>)
+		<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">j</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">j</span> &lt; len(<span style="color:#a6e22e">tmpMap</span>); <span style="color:#a6e22e">j</span><span style="color:#f92672">++</span> {
+			<span style="color:#a6e22e">hitMap</span>[<span style="color:#a6e22e">tmpMap</span>[<span style="color:#a6e22e">j</span>]] = append(<span style="color:#a6e22e">hitMap</span>[<span style="color:#a6e22e">tmpMap</span>[<span style="color:#a6e22e">j</span>]], <span style="color:#a6e22e">words</span>[<span style="color:#a6e22e">i</span>][<span style="color:#e6db74">&#34;Text&#34;</span>])
+		}
+	}
+
+	<span style="color:#66d9ef">if</span> len(<span style="color:#a6e22e">hitMap</span>) &gt; <span style="color:#ae81ff">0</span> {
+		<span style="color:#a6e22e">hit</span> = <span style="color:#66d9ef">true</span>
+	}
+
+	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">hitMap</span>, <span style="color:#a6e22e">hit</span>
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">JsonRpcServer</span>(<span style="color:#a6e22e">w</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">ResponseWriter</span>, <span style="color:#a6e22e">req</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Request</span>) {
+	<span style="color:#75715e">// 得到要分词的文本
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">text</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">URL</span>.<span style="color:#a6e22e">Query</span>().<span style="color:#a6e22e">Get</span>(<span style="color:#e6db74">&#34;text&#34;</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">text</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;&#34;</span> {
+		<span style="color:#a6e22e">text</span> = <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">PostFormValue</span>(<span style="color:#e6db74">&#34;text&#34;</span>)
+	}
+	<span style="color:#75715e">// 支持searchMode
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">mode</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">URL</span>.<span style="color:#a6e22e">Query</span>().<span style="color:#a6e22e">Get</span>(<span style="color:#e6db74">&#34;mode&#34;</span>)
+	<span style="color:#a6e22e">searchMode</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">false</span>
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">mode</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;search&#34;</span> {
+		<span style="color:#a6e22e">searchMode</span> = <span style="color:#66d9ef">true</span>
+	}
+
+	<span style="color:#75715e">// 分词检测，获取已经加载完成的指针值使用
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">segmenter</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">getSego</span>()
+	<span style="color:#a6e22e">segments</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">segmenter</span>.<span style="color:#a6e22e">Segment</span>([]byte(<span style="color:#a6e22e">text</span>))
+	<span style="color:#a6e22e">words</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">sego</span>.<span style="color:#a6e22e">SegmentsToSliceWithPos</span>(<span style="color:#a6e22e">segments</span>, <span style="color:#a6e22e">searchMode</span>)
+	<span style="color:#a6e22e">hitMap</span>, <span style="color:#a6e22e">hit</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">HitFilter</span>(<span style="color:#a6e22e">text</span>, <span style="color:#a6e22e">words</span>)
+	<span style="color:#a6e22e">response</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">json</span>.<span style="color:#a6e22e">Marshal</span>(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">interface</span>{}{<span style="color:#e6db74">&#34;Segment&#34;</span>: <span style="color:#a6e22e">words</span>, <span style="color:#e6db74">&#34;Hit&#34;</span>: <span style="color:#a6e22e">hit</span>, <span style="color:#e6db74">&#34;HitMap&#34;</span>: <span style="color:#a6e22e">hitMap</span>})
+	<span style="color:#a6e22e">logToFile</span>(<span style="color:#a6e22e">logFile</span>, <span style="color:#e6db74">&#34;ip: &#34;</span>, <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">RemoteAddr</span>, <span style="color:#e6db74">&#34;\t&#34;</span>, <span style="color:#a6e22e">text</span>, <span style="color:#e6db74">&#34;\t&#34;</span>, string(<span style="color:#a6e22e">response</span>[:]))
+
+	<span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">Header</span>().<span style="color:#a6e22e">Set</span>(<span style="color:#e6db74">&#34;Content-Type&#34;</span>, <span style="color:#e6db74">&#34;application/json&#34;</span>)
+	<span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">io</span>.<span style="color:#a6e22e">WriteString</span>(<span style="color:#a6e22e">w</span>, string(<span style="color:#a6e22e">response</span>))
+}
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+
+
+	<span style="color:#75715e">// 将线程数设置为CPU数
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">GOMAXPROCS</span>(<span style="color:#a6e22e">runtime</span>.<span style="color:#a6e22e">NumCPU</span>())
+
+	<span style="color:#75715e">// 初始化分词器
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">reloadDict</span>()
+
+	<span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">HandleFunc</span>(<span style="color:#e6db74">&#34;/json&#34;</span>, <span style="color:#a6e22e">JsonRpcServer</span>)
+	<span style="color:#75715e">//http.Handle(&#34;/&#34;, http.FileServer(http.Dir(*staticFolder)))
+</span><span style="color:#75715e"></span>	<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Print</span>(<span style="color:#e6db74">&#34;服务器启动&#34;</span>)
+	<span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">endless</span>.<span style="color:#a6e22e">ListenAndServe</span>(<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%s:%d&#34;</span>, <span style="color:#f92672">*</span><span style="color:#a6e22e">host</span>, <span style="color:#f92672">*</span><span style="color:#a6e22e">port</span>), <span style="color:#66d9ef">nil</span>)
+}
+
+</code></pre></div>
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://shawn888.github.io/tags/go/">Go</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://shawn888.github.io/2020/01/scala%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/" data-tooltip="Scala构建数据库连接池">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://shawn888.github.io/2020/10/go%E5%BC%80%E5%8F%91%E6%8C%87%E9%92%88%E5%88%87%E6%8D%A2%E7%9A%84%E7%94%A8%E5%A4%84/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://shawn888.github.io/2020/10/go%E5%BC%80%E5%8F%91%E6%8C%87%E9%92%88%E5%88%87%E6%8D%A2%E7%9A%84%E7%94%A8%E5%A4%84/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://shawn888.github.io/2020/10/go%E5%BC%80%E5%8F%91%E6%8C%87%E9%92%88%E5%88%87%E6%8D%A2%E7%9A%84%E7%94%A8%E5%A4%84/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2020 <a href="https://github.com/shawn888">shawn888</a>. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="5">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://shawn888.github.io/2020/01/scala%E6%9E%84%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/" data-tooltip="Scala构建数据库连接池">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://shawn888.github.io/2020/10/go%E5%BC%80%E5%8F%91%E6%8C%87%E9%92%88%E5%88%87%E6%8D%A2%E7%9A%84%E7%94%A8%E5%A4%84/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://shawn888.github.io/2020/10/go%E5%BC%80%E5%8F%91%E6%8C%87%E9%92%88%E5%88%87%E6%8D%A2%E7%9A%84%E7%94%A8%E5%A4%84/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://shawn888.github.io/2020/10/go%E5%BC%80%E5%8F%91%E6%8C%87%E9%92%88%E5%88%87%E6%8D%A2%E7%9A%84%E7%94%A8%E5%A4%84/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="5">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fshawn888.github.io%2F2020%2F10%2Fgo%25E5%25BC%2580%25E5%258F%2591%25E6%258C%2587%25E9%2592%2588%25E5%2588%2587%25E6%258D%25A2%25E7%259A%2584%25E7%2594%25A8%25E5%25A4%2584%2F">
+          <i class="fa fa-facebook-official"></i><span>分享到 Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https%3A%2F%2Fshawn888.github.io%2F2020%2F10%2Fgo%25E5%25BC%2580%25E5%258F%2591%25E6%258C%2587%25E9%2592%2588%25E5%2588%2587%25E6%258D%25A2%25E7%259A%2584%25E7%2594%25A8%25E5%25A4%2584%2F">
+          <i class="fa fa-twitter"></i><span>分享到 Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https%3A%2F%2Fshawn888.github.io%2F2020%2F10%2Fgo%25E5%25BC%2580%25E5%258F%2591%25E6%258C%2587%25E9%2592%2588%25E5%2588%2587%25E6%258D%25A2%25E7%259A%2584%25E7%2594%25A8%25E5%25A4%2584%2F">
+          <i class="fa fa-google-plus"></i><span>分享到 Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://s2.ax1x.com/2020/01/09/lW3gpD.jpg" alt="作者的图片" />
+    
+    <h4 id="about-card-name">Luo Xiao</h4>
+    
+      <div id="about-card-bio">年轻时的释怀和淡泊是没有希望的。</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        花椒直播
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        北京·朝阳·酒仙桥
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('https://shawn888.github.io/images/cover.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="https://shawn888.github.io/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = 'https:\/\/shawn888.github.io\/2020\/10\/go%E5%BC%80%E5%8F%91%E6%8C%87%E9%92%88%E5%88%87%E6%8D%A2%E7%9A%84%E7%94%A8%E5%A4%84\/';
+          
+            this.page.identifier = '\/2020\/10\/go%E5%BC%80%E5%8F%91%E6%8C%87%E9%92%88%E5%88%87%E6%8D%A2%E7%9A%84%E7%94%A8%E5%A4%84\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'test-xsuxrce0uu';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+
